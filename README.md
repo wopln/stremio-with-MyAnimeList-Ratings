@@ -25,14 +25,15 @@ Go to **Releases** and download the latest installer:
 
 ---
 
+## ⚠️ Disclaimer
+This project is a custom build based on Stremio Web.  
+All rights belong to Stremio.
+
+---
+
 ## 🚀 Development
 
 ### Install dependencies
 
 ```bash
 npm install
-
----
-
-⚠️ This project is a custom build based on Stremio Web.  
-All rights belong to Stremio.
