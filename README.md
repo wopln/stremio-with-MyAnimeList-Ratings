@@ -23,9 +23,6 @@ Go to **Releases** and download the latest installer:
 
 ➡️ https://github.com/wopln/stremio-with-MyAnimeList-Ratings/releases
 
-This project is a custom build based on Stremio Web.
-All rights belong to Stremio.
-
 ---
 
 ## 🚀 Development
@@ -34,3 +31,8 @@ All rights belong to Stremio.
 
 ```bash
 npm install
+
+---
+
+⚠️ This project is a custom build based on Stremio Web.  
+All rights belong to Stremio.
