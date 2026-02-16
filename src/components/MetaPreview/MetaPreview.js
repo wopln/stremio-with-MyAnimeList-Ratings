@@ -1,6 +1,7 @@
 // Copyright (C) 2017-2023 Smart code 203358507
 
 const React = require('react');
+const { useState, useEffect } = React;
 const PropTypes = require('prop-types');
 const classnames = require('classnames');
 const UrlUtils = require('url');
@@ -19,15 +20,39 @@ const MetaPreviewPlaceholder = require('./MetaPreviewPlaceholder');
 const styles = require('./styles');
 const { Ratings } = require('./Ratings');
 
+
 const ALLOWED_LINK_REDIRECTS = [
     routesRegexp.search.regexp,
     routesRegexp.discover.regexp,
     routesRegexp.metadetails.regexp
 ];
 
+async function getMALRating(title) {
+    try {
+        const res = await fetch(
+            `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(title)}&limit=1`
+
+        );
+        const data = await res.json();
+        return data?.data?.[0]?.score || null;
+    } catch (e) {
+        console.error('MAL fetch failed:', e);
+        return null;
+    }
+}
+
 const MetaPreview = React.forwardRef(({ className, compact, name, logo, background, runtime, releaseInfo, released, description, deepLinks, links, trailerStreams, inLibrary, toggleInLibrary, ratingInfo }, ref) => {
     const { t } = useTranslation();
     const [shareModalOpen, openShareModal, closeShareModal] = useBinaryState(false);
+
+   const [malRating, setMalRating] = React.useState(null);
+
+React.useEffect(() => {
+    if (name) {
+        getMALRating(name).then(setMalRating);
+    }
+}, [name]);
+
     const linksGroups = React.useMemo(() => {
         return Array.isArray(links) ?
             links
@@ -139,21 +164,55 @@ const MetaPreview = React.forwardRef(({ className, compact, name, logo, backgrou
                                         :
                                         null
                             }
-                            {
-                                linksGroups.has(CONSTANTS.IMDB_LINK_CATEGORY) ?
-                                    <Button
-                                        className={styles['imdb-button-container']}
-                                        title={linksGroups.get(CONSTANTS.IMDB_LINK_CATEGORY).label}
-                                        href={linksGroups.get(CONSTANTS.IMDB_LINK_CATEGORY).href}
-                                        target={'_blank'}
-                                        {...(compact ? { tabIndex: -1 } : null)}
-                                    >
-                                        <div className={styles['label']}>{linksGroups.get(CONSTANTS.IMDB_LINK_CATEGORY).label}</div>
-                                        <Icon className={styles['icon']} name={'imdb'} />
-                                    </Button>
-                                    :
-                                    null
-                            }
+                            
+{linksGroups.has(CONSTANTS.IMDB_LINK_CATEGORY) && (
+  <div className={styles['imdb-mal-wrapper']}>
+
+    <Button
+      className={styles['imdb-button-container']}
+      title={linksGroups.get(CONSTANTS.IMDB_LINK_CATEGORY).label}
+      href={linksGroups.get(CONSTANTS.IMDB_LINK_CATEGORY).href}
+      target="_blank"
+      {...(compact ? { tabIndex: -1 } : null)}
+    >
+      <div className={styles['label']}>
+        {linksGroups.get(CONSTANTS.IMDB_LINK_CATEGORY).label}
+      </div>
+
+      <Icon className={styles['icon']} name="imdb" />
+    </Button>
+
+    {malRating && name && (
+      <a
+        href={`https://myanimelist.net/search/all?q=${encodeURIComponent(name)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={styles['mal-rating']}
+      >
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/7/7a/MyAnimeList_Logo.png"
+          alt="MyAnimeList"
+          className={styles['mal-icon']}
+        />
+
+        <span className={styles['mal-score']}>
+          {malRating}
+        </span>
+      </a>
+    )}
+
+  </div>
+)}
+
+
+ 
+
+
+
+
+
+
+                            
                         </div>
                         :
                         null
